@@ -21,6 +21,29 @@ use App\Http\Controllers\WorkshopController;
 */
 
 
+use App\Http\Controllers\ContactController;
+
+// frontend
+Route::post('/contact-submit', [ContactController::class, 'store'])->name('contact.store');
+
+// admin
+Route::prefix('admin')->middleware('auth')->group(function () {
+    Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
+});
+
+
+
+use App\Http\Controllers\admin\UserController;
+
+Route::prefix('admin')->middleware('auth')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/edit/{id}', [UserController::class, 'edit'])->name('users.edit');
+    Route::post('/users/update/{id}', [UserController::class, 'update'])->name('users.update');
+    Route::post('/users/delete/{id}', [UserController::class, 'destroy'])->name('users.delete');
+});
+
+Route::get('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/register', [AuthController::class, 'registerStore'])->name('register.store');
 
 Route::resource('workshops', WorkshopController::class);
 Route::resource('forms', FormController::class);
@@ -32,7 +55,7 @@ Route::post('/book-workshop', [FormController::class, 'bookStore'])->name('works
 
 Route::get('/', function () {
     return view('frontend.index');
-})->name('home'); 
+})->name('home')->middleware('auth');
 
 Route::get('/meet_potters', function () {
     return view('frontend.meet_potters');
@@ -53,6 +76,7 @@ Route::get('/contact_support', function () {
 // Login and Authentication Routes
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'loginAll'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
